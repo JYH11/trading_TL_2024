@@ -14,9 +14,10 @@ In the initial phase, the focus will be on designing and implementing a robust t
 ## Current Status & Future Plans
 **As of now, our project is in the research and design phase.** We are actively working on the architecture and planning the overall system. This stage involves extensive research and careful planning to ensure the success of subsequent phases.
 
-### Why does the repository seem empty?
-- **Research & Design Phase:** We are currently in the research phase. This involves deep dives into algorithmic trading concepts, market analysis, and technology stack decisions. This phase is crucial for laying a strong foundation for the project.
-- **Upcoming Coding Stage:** We expect to start coding in a few weeks. This will include the development of the trading engine, integration with APIs, and implementation of trading strategies.
+### Why Does the Repository Seem Empty?
+- **Early Development Stage:** Currently, our efforts are concentrated on the initial stages of development, which involve a significant amount of planning and groundwork that may not yet result in substantial code commits.
+- **Focus on Non-Coding Aspects:** A large part of our initial work involves setting up infrastructure, designing database schemas, and planning communication protocols, which are critical yet less visible on GitHub.
+- **Upcoming Implementation Phase:** We are preparing to transition from the planning stage to actual coding and implementation. This will soon result in more tangible updates and commits to the repository.
 
 ---
 
