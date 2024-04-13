@@ -1,0 +1,12 @@
+In ubuntu environment:
+
+Those for compiling:
+
+g++ webSocket.cpp -o webSocket -lssl -lcrypto
+g++ parquetWrite.cpp -o parquetWrite -larrow -lparquet
+g++ parquetRead.cpp -o parquetRead -larrow -lparquet
+
+Then run:
+./parquetWrite
+./parquetRead
+./webSocket
