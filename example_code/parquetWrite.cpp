@@ -6,19 +6,34 @@
 #include <iostream>
 #include <memory>
 
-struct Article {
-    std::string name;
-    float price;
-    uint32_t quantity;
+/*
+TODO: I just used string int64_t int and double,
+      it may cause problems using type of time like TIME_MILLIS
+      But in the future, we may fix this bug.
+*/
 
-    Article(std::string n, float p, uint32_t q) : name(n), price(p), quantity(q) {}
+// Define a Trade structure
+struct Trade {
+    std::string trade_date;       
+    std::string trade_time;          
+    int64_t execution_timestamp;     
+    int trader_id;
+    std::string asset_symbol;
+    int quantity;
+    double price;
+
+    // constructor 
+    Trade(std::string date, std::string time, int64_t timestamp, int trader, std::string symbol, int qty, double pr) :
+        trade_date(date), trade_time(time), execution_timestamp(timestamp),
+        trader_id(trader), asset_symbol(symbol), quantity(qty), price(pr) {}
 };
 
-std::vector<Article> getArticles() {
+// Function to simulate getting trade data
+std::vector<Trade> getTrades() {
     return {
-        {"Apple", 0.50, 10},
-        {"Banana", 0.20, 20},
-        {"Orange", 0.30, 30}
+        {"2023-10-01", "09:00:00", 1664611200000, 1, "AAPL", 100, 150.25},
+        {"2023-10-01", "10:00:00", 1664614800000, 2, "MSFT", 150, 250.75},
+        // Additional trades can be added here
     };
 }
 
@@ -26,21 +41,19 @@ int main() {
     // parquet file path
     std::string path_to_file = "test.parquet";
 
-    // Define schema
-    auto int32_type = arrow::int32();
-    auto float_type = arrow::float32();
-    auto string_type = arrow::utf8();
-
+    // Define schema using Parquet schema primitives directly
     std::shared_ptr<parquet::schema::GroupNode> schema = std::static_pointer_cast<parquet::schema::GroupNode>(
     parquet::schema::GroupNode::Make(
-        "schema",
+        "trading_record",
         parquet::Repetition::REQUIRED, {
-            parquet::schema::PrimitiveNode::Make("name", parquet::Repetition::REQUIRED, parquet::Type::BYTE_ARRAY, parquet::ConvertedType::UTF8),
-            parquet::schema::PrimitiveNode::Make("price", parquet::Repetition::REQUIRED, parquet::Type::FLOAT, parquet::ConvertedType::NONE),
-            // Specifies that the conversion type of the 'quantity' column is UINT_32
-            parquet::schema::PrimitiveNode::Make("quantity", parquet::Repetition::REQUIRED, parquet::Type::INT32, parquet::ConvertedType::UINT_32)
+            parquet::schema::PrimitiveNode::Make("trade_date", parquet::Repetition::REQUIRED, parquet::Type::BYTE_ARRAY, parquet::ConvertedType::UTF8),
+            parquet::schema::PrimitiveNode::Make("trade_time", parquet::Repetition::REQUIRED, parquet::Type::BYTE_ARRAY, parquet::ConvertedType::UTF8),  // Modified to store time as a string
+            parquet::schema::PrimitiveNode::Make("execution_timestamp", parquet::Repetition::REQUIRED, parquet::Type::INT64, parquet::ConvertedType::INT_64),
+            parquet::schema::PrimitiveNode::Make("trader_id", parquet::Repetition::REQUIRED, parquet::Type::INT32, parquet::ConvertedType::INT_32),
+            parquet::schema::PrimitiveNode::Make("asset_symbol", parquet::Repetition::REQUIRED, parquet::Type::BYTE_ARRAY, parquet::ConvertedType::UTF8),
+            parquet::schema::PrimitiveNode::Make("quantity", parquet::Repetition::REQUIRED, parquet::Type::INT32, parquet::ConvertedType::INT_32),
+            parquet::schema::PrimitiveNode::Make("price", parquet::Repetition::REQUIRED, parquet::Type::DOUBLE, parquet::ConvertedType::NONE)
         }));
-
 
     //Open file output stream
     std::shared_ptr<arrow::io::FileOutputStream> outfile;
@@ -51,10 +64,10 @@ int main() {
     parquet::StreamWriter os{parquet::ParquetFileWriter::Open(outfile, schema, builder.build())};
 
     // Get data and write
-    for (const auto& article : getArticles()) {
-        os << article.name << article.price << article.quantity << parquet::EndRow;
+    for (const auto& trade : getTrades()) {
+        os << trade.trade_date << trade.trade_time << trade.execution_timestamp
+           << trade.trader_id << trade.asset_symbol << trade.quantity << trade.price << parquet::EndRow;
     }
-
 
     return 0;
 }
