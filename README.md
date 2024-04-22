@@ -31,5 +31,90 @@ Follow the instructions to install ROS2 iron on Ubuntu 20.04 LTS:
 
 ### System Dependencies
 Some additional dependencies may be required for system. Use the following command to install them:
+
 ```bash
 sudo apt-get update && sudo apt-get install -y <list-of-dependencies>
+
+```
+
+## How to run
+
+`1: `Before running, we need to compile. This command will compile all packages:
+
+```bash
+colcon build
+
+```
+
+If you wanna compile specific packages, use:
+
+```bash
+colcon build --packages-select <package_name>
+```
+
+This is an example and just remember, `action` relies on interfaces. So before `action`, you must have already compiled `interfaces`:
+
+```bash
+colcon build --pakcages-select action
+```
+
+`2: `Then we need to configure environment variables:
+
+```bash
+source install/setup.bash
+```
+
+If it doesn't work, before this command, run this:
+
+```bash
+source /opt/ros/iron/setup.bash
+```
+
+`Plus: `Every time you open a new terminal, you have to run this command:
+
+```bash
+source install/setup.bash
+```
+
+If you don't want to do so, another way is trying to edit `.bashrc file`:
+
+`First`, run this command in termimal:
+
+```bash
+nano ~/.bashrc
+```
+
+`Second`, Add the following lines at the end of the file:
+
+```bash
+source /opt/ros/iron/setup.bash
+```
+
+```bash
+source ~/Desktop/ros2_basic/install/local_setup.bash
+```
+
+Keep changes then return to terminal
+
+In order for these changes to take effect, you have two options:
+
+`Effective immediately`: Run the following command in the current terminal to apply the changes immediately: 
+
+```bash
+source ~/.bashrc
+```
+
+`Reopen the terminal`: Close the current terminal and reopen a new terminal. Changes in .bashrc will be applied automatically.
+
+
+`3: `Now we can run:
+
+```bash
+ros2 run <package_name> <node_name>
+```
+
+Like:
+
+```bash
+ros2 run action action_server
+```

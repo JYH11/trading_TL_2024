@@ -18,15 +18,22 @@ int main() {
     // Create Parquet StreamReader
     parquet::StreamReader os(std::move(parquet_reader)); 
 
-    // Define variables to read data
-    std::string name;
-    float price;
-    uint32_t quantity;
+    std::string trade_date;           
+    std::string trade_time;           
+    int64_t execution_timestamp;      
+    int trader_id;
+    std::string asset_symbol;
+    int quantity;
+    double price;
 
     // Read data
     while (!os.eof()) {
-        os >> name >> price >> quantity >> parquet::EndRow;
-        std::cout << "Name: " << name << ", Price: " << price << ", Quantity: " << quantity << std::endl;
+        os >> trade_date >> trade_time >> execution_timestamp
+        >> trader_id >> asset_symbol >> quantity >> price >> parquet::EndRow;
+
+        std::cout << "trade_date: " << trade_date << ", trade_time: " << trade_time << ", execution_timestamp: " 
+        << execution_timestamp << ", trader_id:" <<trader_id<< ", asset_symbol:" << asset_symbol
+        << ", quantity:" << quantity << ", price:"<<price<< std::endl;
     }
 
     return 0;

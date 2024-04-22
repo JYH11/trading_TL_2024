@@ -42,22 +42,22 @@ if(BUILD_TESTING)
 endif()
 
 # Declare executables
-add_executable(publisher src/pub.cpp)
-add_executable(subscriber src/sub.cpp)
+add_executable(data_pull src/data_pull.cpp)
+add_executable(data_storage src/data_storage.cpp)
 
 # Declare dependencies of executables
-ament_target_dependencies(publisher rclcpp std_msgs interfaces)
-ament_target_dependencies(subscriber rclcpp std_msgs interfaces)
+ament_target_dependencies(data_pull rclcpp std_msgs interfaces)
+ament_target_dependencies(data_storage rclcpp std_msgs interfaces)
 
 
 # Link libraries with executables
 # Link Arrow (and Parquet if separate) with your executables
 # Link both Arrow and Parquet with your executables
-target_link_libraries(publisher ${ARROW_SHARED_LIB} ${PARQUET_SHARED_LIB})
-target_link_libraries(subscriber ${ARROW_SHARED_LIB} ${PARQUET_SHARED_LIB})
-target_link_libraries(publisher ${ARROW_SHARED_LIB})  # Link Arrow to publisher
-target_link_libraries(subscriber ${ARROW_SHARED_LIB})  # Link Arrow to subscriber
-target_include_directories(publisher PRIVATE ${json_SOURCE_DIR}/single_include)
+target_link_libraries(data_pull ${ARROW_SHARED_LIB} ${PARQUET_SHARED_LIB})
+target_link_libraries(data_storage ${ARROW_SHARED_LIB} ${PARQUET_SHARED_LIB})
+target_link_libraries(data_pull ${ARROW_SHARED_LIB})  # Link Arrow to publisher
+target_link_libraries(data_storage ${ARROW_SHARED_LIB})  # Link Arrow to subscriber
+target_include_directories(data_pull PRIVATE ${json_SOURCE_DIR}/single_include)
 
 
 # If Parquet is separate, uncomment the following lines
@@ -65,7 +65,7 @@ target_include_directories(publisher PRIVATE ${json_SOURCE_DIR}/single_include)
 
 # Install the executables
 
-install(TARGETS publisher subscriber DESTINATION lib/${PROJECT_NAME})
+install(TARGETS data_pull data_storage DESTINATION lib/${PROJECT_NAME})
 
 # Package configuration
 ament_package()

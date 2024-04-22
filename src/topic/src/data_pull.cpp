@@ -32,7 +32,6 @@ public:
 
 private:
 
-
     // 4. declare timer
     rclcpp::TimerBase::SharedPtr timer_;
     // 1. Claim publisher
