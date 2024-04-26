@@ -1,13 +1,9 @@
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <string>
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include <nlohmann/json.hpp> 
+
 #include "interfaces/msg/template_info.hpp"
 
 
@@ -70,7 +66,7 @@ private:
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<PublisherNode>("Pub");
+    auto node = std::make_shared<PublisherNode>("data_pull");
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;

@@ -24,7 +24,7 @@ struct Trade {
 
 std::vector<Trade> getTrades() {
     std::vector<Trade> trades;
-    for (int i = 0; i < 50; ++i) { 
+    for (int i = 0; i < 500; ++i) { 
         trades.emplace_back("2023-10-01", "10:00:00", 1664614800000, 2, "MSFT", 150, 250.75);
     }
     return trades;
