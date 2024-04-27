@@ -31,7 +31,7 @@ using ::ccapi::toString;
 class PublisherNode : public rclcpp::Node
 {
 public:
-    PublisherNode(std::string name) : Node(name)
+    PublisherNode(std::string name, std::string mode) : Node(name), mode_(mode)
     {
         RCLCPP_INFO(this->get_logger(), "node is running.");
         // 2.Create publisher
@@ -43,50 +43,26 @@ public:
     }
 
 private:
-
     // 4. declare timer
     rclcpp::TimerBase::SharedPtr timer_;
     // 1. Claim publisher
     rclcpp::Publisher<interfaces::msg::TemplateInfo>::SharedPtr publisher_;
-    
 
+    // clarify the mode
+    std::string mode_;
+    
    void send_msg()
     {
         interfaces::msg::TemplateInfo info;
         // Create message
-        info.symbol = "XBTUSD";
-        info.id = 25585432705;
-        info.side = "Sell";
-        info.timestamp = "2024-03-24T13:50:14.196Z";
-        info.size = 34000;
-        info.price = 65479;
-
         interfaces::msg::TemplateInfo info2;
 
-        // Log printing
+        /*
         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", info.symbol.c_str());
         RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", info2.symbol.c_str());
+        */
 
-        // make an announcement
-        publisher_->publish(info);
-        publisher_->publish(info2);
-    }
-};
-
-int main(int argc, char **argv)
-{
-    rclcpp::init(argc, argv);
-    auto node = std::make_shared<PublisherNode>("data_pull");
-    std::vector<std::string> modeList = {
-            "dispatch_events_to_multiple_threads",
-            "handle_events_in_batching_mode",
-    };
-    if (argc != 2 || std::find(modeList.begin(), modeList.end(), argv[1]) == modeList.end()) {
-    std::cerr << "Please provide one command line argument from this list: " + toString(modeList) << std::endl;
-        return EXIT_FAILURE;
-    }
-    std::string mode(argv[1]);
-    if (mode == "dispatch_events_to_multiple_threads") {
+    if (mode_ == "dispatch_events_to_multiple_threads") {
         SessionOptions sessionOptions;
         SessionConfigs sessionConfigs;
         MyEventHandler eventHandler;
@@ -98,11 +74,15 @@ int main(int argc, char **argv)
         // Subscription to BitMEX
         Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
         session.subscribe(bitmexSubscription);
+        
+        // make an announcement
+        publisher_->publish(info);
+        publisher_->publish(info2);
 
         std::this_thread::sleep_for(std::chrono::seconds(10));
         session.stop();
         eventDispatcher.stop();
-    } else if (mode == "handle_events_in_batching_mode") {
+    } else if (mode_ == "handle_events_in_batching_mode") {
         SessionOptions sessionOptions;
         SessionConfigs sessionConfigs;
         Session session(sessionOptions, sessionConfigs);
@@ -116,12 +96,35 @@ int main(int argc, char **argv)
 
         std::this_thread::sleep_for(std::chrono::seconds(10));
         std::vector<Event> eventList = session.getEventQueue().purge();
+
         for (const auto& event : eventList) {
+            info.symbol = toString(event);
+            // make an announcement
+            publisher_->publish(info);
+            publisher_->publish(info2);
             std::cout << toString(event) + "\n" << std::endl;
         }
         session.stop();
     }
     std::cout << "Bye" << std::endl;
+    }
+};
+
+int main(int argc, char **argv)
+{
+    rclcpp::init(argc, argv);
+
+    std::vector<std::string> modeList = {
+            "dispatch_events_to_multiple_threads",
+            "handle_events_in_batching_mode",
+    };
+    if (argc != 2 || std::find(modeList.begin(), modeList.end(), argv[1]) == modeList.end()) {
+    std::cerr << "Please provide one command line argument from this list: " + toString(modeList) << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::string mode(argv[1]);
+    auto node = std::make_shared<PublisherNode>("data_pull",mode);
 
     rclcpp::spin(node);
     rclcpp::shutdown();
