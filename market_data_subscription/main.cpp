@@ -5,7 +5,6 @@ class MyEventHandler : public EventHandler {
  public:
   bool processEvent(const Event& event, Session* session) override {
     std::cout << toString(event) + "\n" << std::endl;
-    
     return true;
   }
 };
@@ -41,6 +40,7 @@ int main(int argc, char** argv) {
     Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
     session.subscribe(bitmexSubscription);
 
+    
     std::this_thread::sleep_for(std::chrono::seconds(10));
     session.stop();
     eventDispatcher.stop();
@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     // Subscription to BitMEX
     Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
     session.subscribe(bitmexSubscription);
+
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
     std::vector<Event> eventList = session.getEventQueue().purge();
