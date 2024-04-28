@@ -29,13 +29,67 @@ Ensure you have the following installed:
 Follow the instructions to install ROS2 iron on Ubuntu 20.04 LTS:
 [ROS2 iron Installation Guide](https://docs.ros.org/en/iron/Installation/Ubuntu-Install-Debians.html)
 
+### Configuring IntelliSense in VS Code
+
+Ensure your have adequate path, then the configurations may look like this:
+
+```bash
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/opt/ros/iron/include",
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/install/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": []
+        }
+    ],
+    "version": 4
+}
+```
+
 ### System Dependencies
 Some additional dependencies may be required for system. Use the following command to install them:
 
-```bash
-sudo apt-get update && sudo apt-get install -y <list-of-dependencies>
+1. For ccapi:
+Suggeted clone it on Desktop or you may modify the cmakelisy
 
+```bash
+git clone https://github.com/crypto-chassis/ccapi.git
 ```
+
+Prepare the Build Directory:
+
+```bash
+cd /home/harrison/Desktop/ccapi/app
+mkdir build
+cd build
+```
+
+Run CMake and Make:
+
+```bash
+cmake ..
+make
+```
+Notice, sometimes the ccapi may change their URL. If you meet problems for this library, please refer to:
+
+`https://github.com/crypto-chassis/ccapi`
+
+2. For Arrow:
+
+Install Required Dependencies:
+
+`https://arrow.apache.org/install/`
+
+
 
 ## How to run
 
@@ -117,4 +171,14 @@ Like:
 
 ```bash
 ros2 run action action_server
+```
+
+`Note: ` Some packages may depend on `interfaces` and sometimes we might need to manually add the installation path to CMAKE_PREFIX_PATH:
+```bash
+export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:Desktop/trading_TL_2024/install
+```
+
+If still not work, please `Debugging Further`:
+```bash
+colcon build --packages-select action --event-handlers console_direct+
 ```
