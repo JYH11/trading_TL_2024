@@ -39,9 +39,8 @@ int main(int argc, char** argv) {
     // Subscription to BitMEX
     Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
     session.subscribe(bitmexSubscription);
-    //Subscription subscription("binance", "BTCUSDT", "MARKET_DEPTH");
-    //Subscription subscription("coinbase", "BTC-USD", "MARKET_DEPTH");
-    //session.subscribe(subscription);
+
+    
     std::this_thread::sleep_for(std::chrono::seconds(10));
     session.stop();
     eventDispatcher.stop();
@@ -57,9 +56,7 @@ int main(int argc, char** argv) {
     Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
     session.subscribe(bitmexSubscription);
 
-    //Subscription subscription("binance", "BTCUSDT", "MARKET_DEPTH");
-    //Subscription subscription("coinbase", "BTC-USD", "MARKET_DEPTH");
-    //session.subscribe(subscription);
+
     std::this_thread::sleep_for(std::chrono::seconds(10));
     std::vector<Event> eventList = session.getEventQueue().purge();
     for (const auto& event : eventList) {
