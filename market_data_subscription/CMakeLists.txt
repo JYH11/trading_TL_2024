@@ -88,4 +88,6 @@ add_executable(${NAME} main.cpp)
 
 # Ensure the external projects are built before your executable
 add_dependencies(${NAME} boost rapidjson)
-include_directories(/Users/Desktop/ccapi/include)
+
+include_directories($ENV{HOME}/Desktop/ccapi/include)
+
