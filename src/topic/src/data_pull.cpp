@@ -94,7 +94,7 @@ private:
         Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
         session.subscribe(bitmexSubscription);
 
-        std::this_thread::sleep_for(std::chrono::seconds(10));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         std::vector<Event> eventList = session.getEventQueue().purge();
 
         for (const auto& event : eventList) {
