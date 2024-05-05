@@ -125,10 +125,12 @@ endif()
 # Declare executables
 add_executable(data_pull src/data_pull.cpp)
 add_executable(data_storage src/data_storage.cpp)
+add_executable(data_storage2 src/data_storage2.cpp)
 
 # Declare dependencies of executables
 ament_target_dependencies(data_pull rclcpp std_msgs interfaces)
 ament_target_dependencies(data_storage rclcpp std_msgs interfaces)
+ament_target_dependencies(data_storage2 rclcpp std_msgs interfaces)
 
 # Ensure the external projects are built before your executable
 add_dependencies(${NAME} boost rapidjson)
@@ -139,8 +141,10 @@ include_directories($ENV{HOME}/Desktop/ccapi/include)
 # Link both Arrow and Parquet with your executables
 target_link_libraries(data_pull ${ARROW_SHARED_LIB} ${PARQUET_SHARED_LIB})
 target_link_libraries(data_storage ${ARROW_SHARED_LIB} ${PARQUET_SHARED_LIB})
+target_link_libraries(data_storage2 ${ARROW_SHARED_LIB} ${PARQUET_SHARED_LIB})
 target_link_libraries(data_pull ${ARROW_SHARED_LIB})  # Link Arrow to publisher
 target_link_libraries(data_storage ${ARROW_SHARED_LIB})  # Link Arrow to subscriber
+target_link_libraries(data_storage2 ${ARROW_SHARED_LIB})  # Link Arrow to subscriber
 target_include_directories(data_pull PRIVATE ${json_SOURCE_DIR}/single_include)
 
 
@@ -149,7 +153,7 @@ target_include_directories(data_pull PRIVATE ${json_SOURCE_DIR}/single_include)
 
 # Install the executables
 
-install(TARGETS data_pull data_storage DESTINATION lib/${PROJECT_NAME})
+install(TARGETS data_pull data_storage data_storage2 DESTINATION lib/${PROJECT_NAME})
 
 # Package configuration
 ament_package()
