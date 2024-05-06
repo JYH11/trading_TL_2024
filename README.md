@@ -16,6 +16,18 @@ The initial phase focuses on:
 
 ---
 
+## System architecture and dataflow
+
+![Diagram showing system's architecture](/readme_assets/v2_architecture_and_dataflow.drawio.png)
+
+The diagram shows different blocks, corresponding to distinct nodes in the system. The nodes are completely independent, allowing high modularity and flexibility: a module could be swapped flawlessly without affecting other modules, and recompilation is only required for the distinct node where changes has been committed, not the whole system. 
+
+Multiple strategies (green blocks) can be added to the system at any time. The strategies will establish connections (indicated in the diagram as *Init*) with other server-like nodes through ROS messaging protocols. 
+
+Order of data flow is also labeled in the diagram, which can be used as a reference to the system's overall program flow. Where the arrows were not numbered, it should be intepret as the communication is conditional (can be called at certain conditions) and its order of execution is insignificant to the overall main program flow.
+
+---
+
 ## Prerequisites
 
 Ensure you have the following installed:
