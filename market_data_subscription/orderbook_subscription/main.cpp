@@ -88,10 +88,10 @@ int main(int argc, char** argv) {
     EventDispatcher eventDispatcher(2);
     Session session(sessionOptions, sessionConfigs, &eventHandler, &eventDispatcher);
     // Subscription to Binance
-    Subscription binanceSubscription("binance", "BTCUSDT", "MARKET_DEPTH");
+    Subscription binanceSubscription("binance", "BTCUSDT", "MARKET_DEPTH","MARKET_DEPTH_RETURN_UPDATE=1&MARKET_DEPTH_MAX=10");
     session.subscribe(binanceSubscription);
     // Subscription to BitMEX
-    Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
+    Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH", "MARKET_DEPTH_RETURN_UPDATE=1&MARKET_DEPTH_MAX=10");
     session.subscribe(bitmexSubscription);
     //Subscription subscription("binance", "BTCUSDT", "MARKET_DEPTH");
     //Subscription subscription("coinbase", "BTC-USD", "MARKET_DEPTH");
@@ -104,11 +104,11 @@ int main(int argc, char** argv) {
     SessionConfigs sessionConfigs;
     Session session(sessionOptions, sessionConfigs);
     // Subscription to Binance
-    Subscription binanceSubscription("binance", "BTCUSDT", "MARKET_DEPTH");
+    Subscription binanceSubscription("binance", "BTCUSDT", "MARKET_DEPTH","MARKET_DEPTH_RETURN_UPDATE=1&MARKET_DEPTH_MAX=10");
     session.subscribe(binanceSubscription);
 
     // Subscription to BitMEX
-    Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
+    Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH","MARKET_DEPTH_RETURN_UPDATE=1&MARKET_DEPTH_MAX=10");
     session.subscribe(bitmexSubscription);
 
     std::this_thread::sleep_for(std::chrono::seconds(10));
