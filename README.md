@@ -145,7 +145,7 @@ source /opt/ros/iron/setup.bash
 ```
 
 ```bash
-source install/local_setup.bash
+source /path_to_project/install/local_setup.bash
 ```
 
 Keep changes then return to terminal
