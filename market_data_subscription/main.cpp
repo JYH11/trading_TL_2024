@@ -1,5 +1,7 @@
 #include "ccapi_cpp/ccapi_session.h"
 #include <regex>
+#include <vector>
+#include <map>
 
 namespace ccapi {
     Logger* Logger::logger = nullptr;  // This line is needed.
@@ -50,7 +52,6 @@ namespace ccapi {
                 askSize = matches[1].str();
             }
 
-            // 输出提取的信息
             std::cout << "Time: " << time << std::endl;
             std::cout << "Time Received: " << timeReceived << std::endl;
             std::cout << "Bid Price: " << bidPrice << std::endl;
