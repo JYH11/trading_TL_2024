@@ -7,6 +7,10 @@ g++ webSocket.cpp -o webSocket -lssl -lcrypto
 ```
 
 ```bash
+g++ -o sqlRead sqlRead.cpp -lpqxx -lpq
+```
+
+```bash
 g++ parquetWrite.cpp -o parquetWrite -larrow -lparquet
 ```
 
@@ -18,6 +22,10 @@ Then run:
 
 ```bash
 ./webSocket
+```
+
+```bash
+./sqlRead
 ```
 
 ```bash
