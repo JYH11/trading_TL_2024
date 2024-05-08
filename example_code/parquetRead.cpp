@@ -29,7 +29,7 @@ int main() {
     PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
 
     // 输出表的简单信息，可以扩展为更详细的行列处理
-    //std::cout << table->ToString() << std::endl;
+    std::cout << table->ToString() << std::endl;
 
 
     auto end = std::chrono::high_resolution_clock::now();
