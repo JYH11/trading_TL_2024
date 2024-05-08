@@ -16,7 +16,7 @@ class SubscriberNode : public rclcpp::Node
 public:
     SubscriberNode(std::string name) : Node(name)
     {
-        RCLCPP_INFO(this->get_logger(), "node is running.");
+        RCLCPP_INFO(this->get_logger(), "strategy1 node is running.");
         // 3. Create a subscriber
         subscription_ = this->create_subscription<interfaces::msg::TemplateInfo>("string_msg", 10,
                                                                           std::bind(&SubscriberNode::sub_callback, this, std::placeholders::_1));
@@ -41,7 +41,7 @@ private:
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<SubscriberNode>("data_storage2");
+    auto node = std::make_shared<SubscriberNode>("strategy1");
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
