@@ -8,8 +8,6 @@
 #include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
 
-// TODO: This is a subscriber node responsible for transmitting to the local database
-// The obtained data needs to be selectively stored as parquet files.
 
 class SubscriberNode : public rclcpp::Node
 {
