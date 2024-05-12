@@ -59,7 +59,7 @@ else()
   set(WEBSOCKETPP_INCLUDE_DIR ${CCAPI_PROJECT_DIR}/dependency/websocketpp)
   set(BOOST_INCLUDE_DIR ${CCAPI_PROJECT_DIR}/dependency/boost)
   set(HFFIX_INCLUDE_DIR ${CCAPI_PROJECT_DIR}/dependency/hffix/include)
-endif()
+endif() 
 
 include_directories(
   ${CCAPI_PROJECT_DIR}/include
