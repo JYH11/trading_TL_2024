@@ -85,7 +85,7 @@ Notice, sometimes the ccapi may change their URL. If you meet problems for this 
 
 2. For Arrow:
 
-Install Required Dependencies:
+Go to this website and use relavant commands:
 
 `https://arrow.apache.org/install/`
 
