@@ -5,10 +5,35 @@
 #include "arrow/io/api.h"
 #include "parquet/arrow/reader.h"
 #include <arrow/table.h>
+#include <boost/circular_buffer.hpp>
 #include <memory>
+
+/*
+Here we have three different ways about cache.
+1. No cache
+2. unordered_map
+3. boost::circular_buffer
+
+Between two different caches, 
+the critical point of the performance gap is almost 500 cached data (roughly). 
+It is faster to use unordered_map when it is less than 500, 
+and it is faster to use boost::circular_buffer when it is greater than 500.
+
+Of course, here we read the entire table, 
+and different replacements can be made based on the specific scenario. 
+But overall, unless there are only 10 to 20 cached data, 
+there will not be an order of magnitude difference between the two methods.
+*/
 
 // Cache Implementation
 std::unordered_map<std::string, std::shared_ptr<arrow::Table>> cache;
+
+struct CacheEntry {
+    std::string key;
+    std::shared_ptr<arrow::Table> table;
+};
+boost::circular_buffer<CacheEntry> cache2(500);
+
 // Function to clear cache
 void clear_cache() {
     cache.clear();
@@ -43,9 +68,39 @@ std::shared_ptr<arrow::Table> read_data(const std::string& file_path, bool use_c
     return table;
 }
 
+// Function to read data from cache or disk
+std::shared_ptr<arrow::Table> read_data2(const std::string& file_path, bool use_cache) {
+    std::string key = "unique_key_based_on_file_path";
+
+    if (use_cache) {
+        for (const auto& entry : cache2) {
+            if (entry.key == key) {
+                return entry.table;  // Cache hit
+            }
+        }
+    }
+
+    // Read from disk (Simulating reading from Parquet)
+    std::shared_ptr<arrow::io::ReadableFile> infile;
+    PARQUET_ASSIGN_OR_THROW(infile, arrow::io::ReadableFile::Open(file_path, arrow::default_memory_pool()));
+
+    std::unique_ptr<parquet::arrow::FileReader> reader;
+    parquet::arrow::FileReaderBuilder builder;
+    PARQUET_THROW_NOT_OK(builder.Open(infile));
+    PARQUET_THROW_NOT_OK(builder.Build(&reader));
+
+    std::shared_ptr<arrow::Table> table;
+    PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
+
+    if (use_cache) {
+        cache2.push_back({key, table});
+    }
+    return table;
+}
+
 // Testing Function
 void performance_test(const std::string& file_path) {
-    const int num_runs = 5;
+    const int num_runs = 500;
 
     // Test without cache
     auto start_nc = std::chrono::high_resolution_clock::now();
@@ -67,6 +122,14 @@ void performance_test(const std::string& file_path) {
     auto end_c = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_c = end_c - start_c;
     std::cout << "Cache Total Time: " << elapsed_c.count() << " seconds." << std::endl;
+
+    auto start_uc = std::chrono::high_resolution_clock::now();
+    for(int i=0; i< num_runs; ++i){
+        read_data2(file_path,true);
+    }
+    auto end_uc = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_uc = end_uc - start_uc;
+    std::cout << "Cache2 Total Time: " << elapsed_uc.count() << " seconds." << std::endl;
 }
 
 int main() {
