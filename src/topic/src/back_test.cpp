@@ -1,42 +1,22 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include <arrow/array.h>
+#include <arrow/builder.h>
+#include <arrow/type.h>
 #include <memory>
 #include <arrow/api.h>
 #include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
 
-#include "arrow/io/api.h"
-#include "parquet/arrow/schema.h"
-#include "parquet/arrow/writer.h"
-#include "parquet/stream_writer.h"
-#include <arrow/api.h>
-#include <iostream>
-#include <memory>
-#include <chrono>
-#include <vector>
-#include "dataWrite.h"
+double account = 0;
 
-// This is a subscriber node responsible for transmitting to the local database
-// The obtained data needs to be selectively stored as parquet files.
-
-struct Trade {
-    std::string symbol;       
-    double bid_size;
-    double bid_price;
-    double ask_size;
-    double ask_price;
-
-    Trade(std::string symbol_, double bid_size_, double bid_price_, double ask_size_, double ask_price_) :
-        symbol(symbol_), bid_size(bid_size_), bid_price(bid_price_),
-        ask_size(ask_size_), ask_price(ask_price_){}
-};
 
 class SubscriberNode : public rclcpp::Node
 {
 public:
-    SubscriberNode(std::string name) : Node(name), data_writer_(std::make_unique<DataWriter>)
+    SubscriberNode(std::string name) : Node(name)
     {
-        RCLCPP_INFO(this->get_logger(), "data_storage node is running.");
+        RCLCPP_INFO(this->get_logger(), "backtest node is running.");
         // 3. Create a subscriber
         subscription_ = this->create_subscription<interfaces::msg::TemplateInfo>("string_msg", 10,
                                                                           std::bind(&SubscriberNode::sub_callback, this, std::placeholders::_1));
@@ -45,8 +25,6 @@ public:
 private:
     // 1.Declare subscribers
     rclcpp::Subscription<interfaces::msg::TemplateInfo>::SharedPtr subscription_;
-
-    std::unique_ptr<DataWriter> data_writer_;
     // 2.Subscriber callback function
     void sub_callback(const interfaces::msg::TemplateInfo::SharedPtr msgs)
     {   
@@ -62,16 +40,25 @@ private:
                     example_bid_price,
                     example_ask_size,
                     example_ask_price);
-        Trade trade(example_symbol, example_bid_size, example_bid_price, example_ask_size , example_ask_price);
-        data_writer_->queueData(trade);
+
+        double number1 = example_bid_size*example_bid_price;
+        double number2 = example_ask_size*example_ask_price;
+        double number3 = number2 - number1;
+
+        if(number3 > 0){
+            account -= number2;
+        }else{
+            account += number1;
+        }
     }
     
 };
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<SubscriberNode>("data_storage");
+    auto node = std::make_shared<SubscriberNode>("back_test");
     rclcpp::spin(node);
     rclcpp::shutdown();
+    std::cout<<
     return 0;
 }

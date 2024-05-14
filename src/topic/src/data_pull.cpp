@@ -16,6 +16,58 @@ using ::ccapi::SessionOptions;
 using ::ccapi::Subscription;
 using ::ccapi::toString;
 
+std::string extractField(const std::string& data, const std::string& field) {
+    size_t startPos = data.find(field + "=");
+    if (startPos == std::string::npos) {
+        return "";
+    }
+    startPos += field.length() + 1; // Start after the '='
+    size_t endPos = data.find(",", startPos);
+    if (endPos == std::string::npos) { // Handle the last parameter case
+        endPos = data.length();
+    }
+    return data.substr(startPos, endPos - startPos);
+}
+
+std::string getSymbol(const std::string& data) {
+    return extractField(data, "instrument");
+}
+/*
+std::string getTime(const std::string& data){
+    size_t startPos = data.find("time" + " =");
+    if(startPos == std::string::npos){
+        return "";
+    }
+    startPos += 7 // "time = "
+    size_t endPos = data.find("," , startPos);
+    if(endPos == std::string::npos){
+        return "";
+    }
+    return data.substr(startPos , endPos - startPos);
+}
+*/
+
+double getBidPrice(const std::string& data) {
+    std::string price = extractField(data, "BID_PRICE");
+    return !price.empty() ? std::stod(price) : 0.0;
+}
+
+double getBidSize(const std::string& data) {
+    std::string size = extractField(data, "BID_SIZE");
+    return !size.empty() ? std::stod(size) : 0.0;
+}
+
+double getAskPrice(const std::string& data) {
+    std::string price = extractField(data, "ASK_PRICE");
+    return !price.empty() ? std::stod(price) : 0.0;
+}
+
+double getAskSize(const std::string& data) {
+    std::string size = extractField(data, "ASK_SIZE");
+    return !size.empty() ? std::stod(size) : 0.0;
+}
+
+
 class PublisherNode : public rclcpp::Node
 {
 public:
@@ -35,7 +87,6 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     // 1. Claim publisher
     rclcpp::Publisher<interfaces::msg::TemplateInfo>::SharedPtr publisher_;
-
     
    void send_msg()
     {   
@@ -48,22 +99,28 @@ private:
         // Subscription to Binance
         Subscription binanceSubscription("binance", "BTCUSDT", "MARKET_DEPTH");
         session.subscribe(binanceSubscription);
-
+        
         // Subscription to BitMEX
-        Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
-        session.subscribe(bitmexSubscription);
+        // Subscription bitmexSubscription("bitmex", "BTCUSD", "MARKET_DEPTH");
+        // session.subscribe(bitmexSubscription);
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
         std::vector<Event> eventList = session.getEventQueue().purge();
 
         for (const auto& event : eventList) {
-            std::string pub = toString(event);
-            info.symbol = pub;
+            std::string data = toString(event);
+
+            info.symbol = "BTCUSDT";
+            info.bidsize = getBidSize(data);
+            info.bidprice = getBidPrice(data);
+            info.asksize = getAskSize(data);
+            info.askprice = getAskPrice(data);
+
             // make an announcement
             publisher_->publish(info);               
-            RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", pub.c_str());
-        
+            RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", data.c_str());
         }
+        
         session.stop();
     
         std::cout << "Bye" << std::endl;

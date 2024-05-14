@@ -8,7 +8,6 @@
 #include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
 
-
 class SubscriberNode : public rclcpp::Node
 {
 public:
@@ -25,15 +24,20 @@ private:
     rclcpp::Subscription<interfaces::msg::TemplateInfo>::SharedPtr subscription_;
     // 2.Subscriber callback function
     void sub_callback(const interfaces::msg::TemplateInfo::SharedPtr msgs)
-    {
-        RCLCPP_INFO(this->get_logger(), "Receiving name: %s, id: %ld, side: %s \n                                     timestamp: %s, size: %ld, price: %ld",
-                    msgs->symbol.c_str(),
-                    msgs->id,
-                    msgs->side.c_str(),
-                    msgs->timestamp.c_str(),
-                    msgs->size,
-                    msgs->price);
-    }
+    {   
+        std::string example_symbol = msgs->symbol;
+        double example_bid_size = msgs->bidsize;
+        double example_bid_price = msgs->bidprice;
+        double example_ask_size = msgs->asksize;
+        double example_ask_price = msgs->askprice;
+
+        RCLCPP_INFO(this->get_logger(), "Receiving name: %s, bidsize: %f, bidprice: %f,asksize: %f, askprice: %f",
+                    example_symbol.c_str(),
+                    example_bid_size,
+                    example_bid_price,
+                    example_ask_size,
+                    example_ask_price);
+        }
     
 };
 int main(int argc, char **argv)

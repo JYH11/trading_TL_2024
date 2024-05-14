@@ -9,26 +9,27 @@
 int main() {
     auto start = std::chrono::high_resolution_clock::now();
     // parquet file path
-        std::string file_path = "large_test.parquet";
+    std::string file_path = "large_test.parquet";
 
-    // 创建文件输入流
+    // Create file input stream
     std::shared_ptr<arrow::io::ReadableFile> infile;
     PARQUET_ASSIGN_OR_THROW(infile, arrow::io::ReadableFile::Open(file_path, arrow::default_memory_pool()));
 
-    // 创建Parquet文件读取器
+    // Create a Parquet file reader
     std::unique_ptr<parquet::arrow::FileReader> reader;
     parquet::arrow::FileReaderBuilder builder;
     PARQUET_THROW_NOT_OK(builder.Open(infile));
     PARQUET_THROW_NOT_OK(builder.Build(&reader));
 
-    // 使用多线程读取
+    // Read using multiple threads
     reader->set_use_threads(true);
 
-    // 读取整个表
+    // Read the entire table
     std::shared_ptr<arrow::Table> table;
     PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
 
-    // 输出表的简单信息，可以扩展为更详细的行列处理
+    // Outputs simple information about the table,
+    // which can be expanded to more detailed row and column processing
     std::cout << table->ToString() << std::endl;
 
 
