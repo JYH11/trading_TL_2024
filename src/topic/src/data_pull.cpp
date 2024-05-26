@@ -7,6 +7,9 @@
 #include "interfaces/msg/template_info.hpp"
 
 using namespace std::chrono_literals;
+using std::string;
+using std::vector; 
+using std::stod;
 
 using ::ccapi::Event;
 using ::ccapi::EventDispatcher;
@@ -16,62 +19,62 @@ using ::ccapi::SessionOptions;
 using ::ccapi::Subscription;
 using ::ccapi::toString;
 
-std::string extractField(const std::string& data, const std::string& field) {
+string extractField(const string& data, const string& field) {
     size_t startPos = data.find(field + "=");
-    if (startPos == std::string::npos) {
+    if (startPos == string::npos) {
         return "";
     }
     startPos += field.length() + 1; // Start after the '='
     size_t endPos = data.find(",", startPos);
-    if (endPos == std::string::npos) { // Handle the last parameter case
+    if (endPos == string::npos) { // Handle the last parameter case
         endPos = data.length();
     }
     return data.substr(startPos, endPos - startPos);
 }
 
-std::string getSymbol(const std::string& data) {
+string getSymbol(const string& data) {
     return extractField(data, "instrument");
 }
-/*
-std::string getTime(const std::string& data){
-    size_t startPos = data.find("time" + " =");
-    if(startPos == std::string::npos){
+
+string getTime(const string& data){
+    size_t startPos = data.find("time =");
+    if(startPos == string::npos){
         return "";
     }
-    startPos += 7 // "time = "
+    startPos += 7; // "time = "
     size_t endPos = data.find("," , startPos);
-    if(endPos == std::string::npos){
+    if(endPos == string::npos){
         return "";
     }
     return data.substr(startPos , endPos - startPos);
 }
-*/
 
-double getBidPrice(const std::string& data) {
-    std::string price = extractField(data, "BID_PRICE");
-    return !price.empty() ? std::stod(price) : 0.0;
+
+double getBidPrice(const string& data) {
+    string price = extractField(data, "BID_PRICE");
+    return !price.empty() ? stod(price) : 0.0;
 }
 
-double getBidSize(const std::string& data) {
-    std::string size = extractField(data, "BID_SIZE");
-    return !size.empty() ? std::stod(size) : 0.0;
+double getBidSize(const string& data) {
+    string size = extractField(data, "BID_SIZE");
+    return !size.empty() ? stod(size) : 0.0;
 }
 
-double getAskPrice(const std::string& data) {
-    std::string price = extractField(data, "ASK_PRICE");
-    return !price.empty() ? std::stod(price) : 0.0;
+double getAskPrice(const string& data) {
+    string price = extractField(data, "ASK_PRICE");
+    return !price.empty() ? stod(price) : 0.0;
 }
 
-double getAskSize(const std::string& data) {
-    std::string size = extractField(data, "ASK_SIZE");
-    return !size.empty() ? std::stod(size) : 0.0;
+double getAskSize(const string& data) {
+    string size = extractField(data, "ASK_SIZE");
+    return !size.empty() ? stod(size) : 0.0;
 }
 
 
 class PublisherNode : public rclcpp::Node
 {
 public:
-    PublisherNode(std::string name) : Node(name)
+    PublisherNode(string name) : Node(name)
     {
         RCLCPP_INFO(this->get_logger(), "node is running.");
         // 2.Create publisher
@@ -108,7 +111,7 @@ private:
         std::vector<Event> eventList = session.getEventQueue().purge();
 
         for (const auto& event : eventList) {
-            std::string data = toString(event);
+            string data = toString(event);
 
             info.symbol = "BTCUSDT";
             info.bidsize = getBidSize(data);

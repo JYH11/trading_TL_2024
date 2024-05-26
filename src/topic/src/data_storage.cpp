@@ -5,36 +5,22 @@
 #include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
 
-#include "arrow/io/api.h"
+//#include "arrow/io/api.h"
 #include "parquet/arrow/schema.h"
-#include "parquet/arrow/writer.h"
+//#include "parquet/arrow/writer.h"
 #include "parquet/stream_writer.h"
-#include <arrow/api.h>
 #include <iostream>
 #include <memory>
 #include <chrono>
 #include <vector>
 #include "dataWrite.h"
-
 // This is a subscriber node responsible for transmitting to the local database
 // The obtained data needs to be selectively stored as parquet files.
-
-struct Trade {
-    std::string symbol;       
-    double bid_size;
-    double bid_price;
-    double ask_size;
-    double ask_price;
-
-    Trade(std::string symbol_, double bid_size_, double bid_price_, double ask_size_, double ask_price_) :
-        symbol(symbol_), bid_size(bid_size_), bid_price(bid_price_),
-        ask_size(ask_size_), ask_price(ask_price_){}
-};
 
 class SubscriberNode : public rclcpp::Node
 {
 public:
-    SubscriberNode(std::string name) : Node(name), data_writer_(std::make_unique<DataWriter>)
+    SubscriberNode(string name) : Node(name)/*, data_writer_(std::make_unique<DataWriter>())*/
     {
         RCLCPP_INFO(this->get_logger(), "data_storage node is running.");
         // 3. Create a subscriber
@@ -46,11 +32,12 @@ private:
     // 1.Declare subscribers
     rclcpp::Subscription<interfaces::msg::TemplateInfo>::SharedPtr subscription_;
 
-    std::unique_ptr<DataWriter> data_writer_;
+    //std::unique_ptr<DataWriter> data_writer_;
+
     // 2.Subscriber callback function
     void sub_callback(const interfaces::msg::TemplateInfo::SharedPtr msgs)
     {   
-        std::string example_symbol = msgs->symbol;
+        string example_symbol = msgs->symbol;
         double example_bid_size = msgs->bidsize;
         double example_bid_price = msgs->bidprice;
         double example_ask_size = msgs->asksize;
@@ -63,7 +50,8 @@ private:
                     example_ask_size,
                     example_ask_price);
         Trade trade(example_symbol, example_bid_size, example_bid_price, example_ask_size , example_ask_price);
-        data_writer_->queueData(trade);
+        //data_writer_->queueData(trade);
+        
     }
     
 };

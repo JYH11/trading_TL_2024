@@ -8,8 +8,9 @@
 #include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
 
-double account = 0;
 
+using std::string;
+double account = 0;
 
 class SubscriberNode : public rclcpp::Node
 {
@@ -28,7 +29,7 @@ private:
     // 2.Subscriber callback function
     void sub_callback(const interfaces::msg::TemplateInfo::SharedPtr msgs)
     {   
-        std::string example_symbol = msgs->symbol;
+        string example_symbol = msgs->symbol;
         double example_bid_size = msgs->bidsize;
         double example_bid_price = msgs->bidprice;
         double example_ask_size = msgs->asksize;
@@ -59,6 +60,5 @@ int main(int argc, char **argv)
     auto node = std::make_shared<SubscriberNode>("back_test");
     rclcpp::spin(node);
     rclcpp::shutdown();
-    std::cout<<
     return 0;
 }

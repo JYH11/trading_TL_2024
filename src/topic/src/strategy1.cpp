@@ -7,7 +7,7 @@
 #include <arrow/api.h>
 #include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
-
+using std::string;
 class SubscriberNode : public rclcpp::Node
 {
 public:
@@ -25,7 +25,7 @@ private:
     // 2.Subscriber callback function
     void sub_callback(const interfaces::msg::TemplateInfo::SharedPtr msgs)
     {   
-        std::string example_symbol = msgs->symbol;
+        string example_symbol = msgs->symbol;
         double example_bid_size = msgs->bidsize;
         double example_bid_price = msgs->bidprice;
         double example_ask_size = msgs->asksize;
