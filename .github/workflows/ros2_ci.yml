@@ -13,9 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-    - name: Run Custom Tests
+    - name: List directory contents
+      run: ls -la
+
+    - name: Change to test directory
+      run: cd test
+
+    - name: Compile test program
       run: |
-        cd test
-        g++ -o extractData_test ./extractData_test.cpp
+        g++ -o extractData_test extractData_test.cpp
         ./extractData_test
