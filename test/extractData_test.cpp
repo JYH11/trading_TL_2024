@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include <string>
-#include "../src/extractData.h"
+#include "../src/topic/src/extractData.h"
 
 using namespace std;
 

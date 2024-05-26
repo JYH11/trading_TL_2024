@@ -16,8 +16,6 @@ jobs:
 
     - name: Run Custom Tests
       run: |
-        # Run tests from your 'test' directory that are not dependent on ROS2
-        # Adjust the following commands to fit the way your tests are run
         cd test
-        g++ -o extractData_test ./test/extractData_test.cpp
+        g++ -o extractData_test ./extractData_test.cpp
         ./extractData_test
