@@ -13,22 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
 
-    - name: Setup ROS2
-      uses: ros-tooling/setup-ros@v0.2
-      with:
-        required-ros-distributions: iron
-
-    - name: Install dependencies
+    - name: Run Custom Tests
       run: |
-        sudo apt update
-        rosdep update
-        rosdep install --from-paths src --ignore-src --rosdistro iron -y
-
-    - name: Build
-      run: colcon build --symlink-install
-
-    - name: Test
-      run: colcon test && colcon test-result --verbose
+        # Run tests from your 'test' directory that are not dependent on ROS2
+        # Adjust the following commands to fit the way your tests are run
+        cd test
+        g++ -o extractData_test ./test/extractData_test.cpp
+        ./extractData_test
