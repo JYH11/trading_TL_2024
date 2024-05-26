@@ -19,13 +19,8 @@ jobs:
     - name: List directory contents
       run: ls -la
 
-    - name: Change to test directory
-      run: |
-        cd test
-        ls -la
-
-
     - name: Compile test program
       run: |
+        cd test
         g++ -o extractData_test extractData_test.cpp
         ./extractData_test
