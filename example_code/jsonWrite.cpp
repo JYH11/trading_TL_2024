@@ -3,7 +3,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-
+#include <string>
+using namespace std;
 struct Trade {
     std::string trade_date;       
     std::string trade_time;          

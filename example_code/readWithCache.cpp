@@ -7,6 +7,8 @@
 #include <arrow/table.h>
 #include <boost/circular_buffer.hpp>
 #include <memory>
+#include <string>
+using namespace std;
 
 /*
 Here we have three different ways about cache.
@@ -26,11 +28,11 @@ there will not be an order of magnitude difference between the two methods.
 */
 
 // Cache Implementation
-std::unordered_map<std::string, std::shared_ptr<arrow::Table>> cache;
+unordered_map<string, shared_ptr<arrow::Table>> cache;
 
 struct CacheEntry {
-    std::string key;
-    std::shared_ptr<arrow::Table> table;
+    string key;
+    shared_ptr<arrow::Table> table;
 };
 boost::circular_buffer<CacheEntry> cache2(500);
 
@@ -40,8 +42,8 @@ void clear_cache() {
 }
 
 // Function to read data from cache or disk
-std::shared_ptr<arrow::Table> read_data(const std::string& file_path, bool use_cache) {
-    std::string key = "unique_key_based_on_file_path";
+shared_ptr<arrow::Table> read_data(const string& file_path, bool use_cache) {
+    string key = "unique_key_based_on_file_path";
 
     if (use_cache) {
         auto it = cache.find(key);
@@ -51,15 +53,15 @@ std::shared_ptr<arrow::Table> read_data(const std::string& file_path, bool use_c
     }
 
     // Read from disk (Simulating reading from Parquet)
-    std::shared_ptr<arrow::io::ReadableFile> infile;
+    shared_ptr<arrow::io::ReadableFile> infile;
     PARQUET_ASSIGN_OR_THROW(infile, arrow::io::ReadableFile::Open(file_path, arrow::default_memory_pool()));
 
-    std::unique_ptr<parquet::arrow::FileReader> reader;
+    unique_ptr<parquet::arrow::FileReader> reader;
     parquet::arrow::FileReaderBuilder builder;
     PARQUET_THROW_NOT_OK(builder.Open(infile));
     PARQUET_THROW_NOT_OK(builder.Build(&reader));
 
-    std::shared_ptr<arrow::Table> table;
+    shared_ptr<arrow::Table> table;
     PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
 
     if (use_cache) {
@@ -69,8 +71,8 @@ std::shared_ptr<arrow::Table> read_data(const std::string& file_path, bool use_c
 }
 
 // Function to read data from cache or disk
-std::shared_ptr<arrow::Table> read_data2(const std::string& file_path, bool use_cache) {
-    std::string key = "unique_key_based_on_file_path";
+shared_ptr<arrow::Table> read_data2(const string& file_path, bool use_cache) {
+    string key = "unique_key_based_on_file_path";
 
     if (use_cache) {
         for (const auto& entry : cache2) {
@@ -81,15 +83,15 @@ std::shared_ptr<arrow::Table> read_data2(const std::string& file_path, bool use_
     }
 
     // Read from disk (Simulating reading from Parquet)
-    std::shared_ptr<arrow::io::ReadableFile> infile;
+    shared_ptr<arrow::io::ReadableFile> infile;
     PARQUET_ASSIGN_OR_THROW(infile, arrow::io::ReadableFile::Open(file_path, arrow::default_memory_pool()));
 
-    std::unique_ptr<parquet::arrow::FileReader> reader;
+    unique_ptr<parquet::arrow::FileReader> reader;
     parquet::arrow::FileReaderBuilder builder;
     PARQUET_THROW_NOT_OK(builder.Open(infile));
     PARQUET_THROW_NOT_OK(builder.Build(&reader));
 
-    std::shared_ptr<arrow::Table> table;
+    shared_ptr<arrow::Table> table;
     PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
 
     if (use_cache) {
@@ -99,41 +101,41 @@ std::shared_ptr<arrow::Table> read_data2(const std::string& file_path, bool use_
 }
 
 // Testing Function
-void performance_test(const std::string& file_path) {
+void performance_test(const string& file_path) {
     const int num_runs = 500;
 
     // Test without cache
-    auto start_nc = std::chrono::high_resolution_clock::now();
+    auto start_nc = chrono::high_resolution_clock::now();
     for (int i = 0; i < num_runs; ++i) {
         read_data(file_path, false);
     }
-    auto end_nc = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed_nc = end_nc - start_nc;
-    std::cout << "No Cache Total Time: " << elapsed_nc.count() << " seconds." << std::endl;
+    auto end_nc = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed_nc = end_nc - start_nc;
+    cout << "No Cache Total Time: " << elapsed_nc.count() << " seconds." << endl;
 
     // Clear cache
     clear_cache();
 
     // Test with cache
-    auto start_c = std::chrono::high_resolution_clock::now();
+    auto start_c = chrono::high_resolution_clock::now();
     for (int i = 0; i < num_runs; ++i) {
         read_data(file_path, true);
     }
-    auto end_c = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed_c = end_c - start_c;
-    std::cout << "Cache Total Time: " << elapsed_c.count() << " seconds." << std::endl;
+    auto end_c = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed_c = end_c - start_c;
+    cout << "Cache Total Time: " << elapsed_c.count() << " seconds." << endl;
 
-    auto start_uc = std::chrono::high_resolution_clock::now();
+    auto start_uc = chrono::high_resolution_clock::now();
     for(int i=0; i< num_runs; ++i){
         read_data2(file_path,true);
     }
-    auto end_uc = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed_uc = end_uc - start_uc;
-    std::cout << "Cache2 Total Time: " << elapsed_uc.count() << " seconds." << std::endl;
+    auto end_uc = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed_uc = end_uc - start_uc;
+    cout << "Cache2 Total Time: " << elapsed_uc.count() << " seconds." << endl;
 }
 
 int main() {
-    std::string file_path = "large_test.parquet";
+    string file_path = "large_test.parquet";
     performance_test(file_path);
     return 0;
 }

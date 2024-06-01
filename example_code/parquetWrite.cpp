@@ -7,23 +7,24 @@
 #include <memory>
 #include <chrono>
 #include <vector>
-
+#include <string>
+using namespace std;
 struct Trade {
-    std::string trade_date;       
-    std::string trade_time;          
+    string trade_date;       
+    string trade_time;          
     int64_t execution_timestamp;     
     int trader_id;
-    std::string asset_symbol;
+    string asset_symbol;
     int quantity;
     double price;
 
-    Trade(std::string date, std::string time, int64_t timestamp, int trader, std::string symbol, int qty, double pr) :
+    Trade(string date, string time, int64_t timestamp, int trader, string symbol, int qty, double pr) :
         trade_date(date), trade_time(time), execution_timestamp(timestamp),
         trader_id(trader), asset_symbol(symbol), quantity(qty), price(pr) {}
 };
 
-std::vector<Trade> getTrades() {
-    std::vector<Trade> trades;
+vector<Trade> getTrades() {
+    vector<Trade> trades;
     for (int i = 0; i < 2000; ++i) { 
         trades.emplace_back("2023-10-01", "10:00:00", 1664614800000, 2, "MSFT", 150, 250.75);
     }
@@ -31,10 +32,10 @@ std::vector<Trade> getTrades() {
 }
 
 int main() {
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = chrono::high_resolution_clock::now();
 
-    std::string path_to_file = "large_test.parquet";
-    std::shared_ptr<parquet::schema::GroupNode> schema = std::static_pointer_cast<parquet::schema::GroupNode>(
+    string path_to_file = "large_test.parquet";
+    shared_ptr<parquet::schema::GroupNode> schema = static_pointer_cast<parquet::schema::GroupNode>(
         parquet::schema::GroupNode::Make(
             "trading_record",
             parquet::Repetition::REQUIRED, {
@@ -47,20 +48,20 @@ int main() {
                 parquet::schema::PrimitiveNode::Make("price", parquet::Repetition::REQUIRED, parquet::Type::DOUBLE, parquet::ConvertedType::NONE)
             }));
 
-    std::shared_ptr<arrow::io::FileOutputStream> outfile;
+    shared_ptr<arrow::io::FileOutputStream> outfile;
     PARQUET_THROW_NOT_OK(arrow::io::FileOutputStream::Open(path_to_file).Value(&outfile));
     parquet::WriterProperties::Builder builder;
-    std::unique_ptr<parquet::ParquetFileWriter> file_writer = parquet::ParquetFileWriter::Open(outfile, schema, builder.build());
-    parquet::StreamWriter os(std::move(file_writer));
+    unique_ptr<parquet::ParquetFileWriter> file_writer = parquet::ParquetFileWriter::Open(outfile, schema, builder.build());
+    parquet::StreamWriter os(move(file_writer));
 
     for (const auto& trade : getTrades()) {
         os << trade.trade_date << trade.trade_time << trade.execution_timestamp
            << trade.trader_id << trade.asset_symbol << trade.quantity << trade.price << parquet::EndRow;
     }
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end - start;
-    std::cout << "Parquet write time: " << elapsed.count() << " seconds." << std::endl;
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = end - start;
+    cout << "Parquet write time: " << elapsed.count() << " seconds." << endl;
 
     return 0;
 }

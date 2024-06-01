@@ -2,29 +2,30 @@
 #include <pqxx/pqxx>
 #include <vector>
 #include <chrono>
-
+#include <string>
+using namespace std;
 struct Trade {
-    std::string trade_date;
-    std::string trade_time;
+    string trade_date;
+    string trade_time;
     int64_t execution_timestamp;
     int trader_id;
-    std::string asset_symbol;
+    string asset_symbol;
     int quantity;
     double price;
 
-    Trade(std::string date, std::string time, int64_t timestamp, int trader, std::string symbol, int qty, double pr) :
+    Trade(string date, string time, int64_t timestamp, int trader, string symbol, int qty, double pr) :
         trade_date(date), trade_time(time), execution_timestamp(timestamp),
         trader_id(trader), asset_symbol(symbol), quantity(qty), price(pr) {}
 
     // Function to display trade information
     void print() const {
-        std::cout << "Date: " << trade_date
+        cout << "Date: " << trade_date
                   << ", Time: " << trade_time
                   << ", Timestamp: " << execution_timestamp
                   << ", Trader ID: " << trader_id
                   << ", Symbol: " << asset_symbol
                   << ", Quantity: " << quantity
-                  << ", Price: " << price << std::endl;
+                  << ", Price: " << price << endl;
     }
 };
 
@@ -32,26 +33,26 @@ int main() {
     try {
         pqxx::connection C("dbname=mydatabase user=harrison password=huhaoren hostaddr=127.0.0.1 port=5432");
         if (C.is_open()) {
-            std::cout << "Opened database successfully: " << C.dbname() << std::endl;
+            cout << "Opened database successfully: " << C.dbname() << endl;
         } else {
-            std::cerr << "Can't open database" << std::endl;
+            cerr << "Can't open database" << endl;
             return 1;
         }
 
-        auto start = std::chrono::high_resolution_clock::now();
+        auto start = chrono::high_resolution_clock::now();
 
         // Start a non-transactional session to execute a read query
         pqxx::nontransaction N(C);
         pqxx::result R = N.exec("SELECT trade_date, trade_time, execution_timestamp, trader_id, asset_symbol, quantity, price FROM trades");
 
-        std::vector<Trade> trades;
+        vector<Trade> trades;
         for (auto row : R) {
             trades.emplace_back(
-                row[0].as<std::string>(),
-                row[1].as<std::string>(),
+                row[0].as<string>(),
+                row[1].as<string>(),
                 row[2].as<int64_t>(),
                 row[3].as<int>(),
-                row[4].as<std::string>(),
+                row[4].as<string>(),
                 row[5].as<int>(),
                 row[6].as<double>()
             );
@@ -62,14 +63,14 @@ int main() {
         }
 
 
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Database read time: " << elapsed.count() << " seconds." << std::endl;
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double> elapsed = end - start;
+        cout << "Database read time: " << elapsed.count() << " seconds." << endl;
 
 
         C.disconnect();
-    } catch (const std::exception &e) {
-        std::cerr << "An error occurred: " << e.what() << std::endl;
+    } catch (const exception &e) {
+        cerr << "An error occurred: " << e.what() << endl;
         return 1;
     }
 

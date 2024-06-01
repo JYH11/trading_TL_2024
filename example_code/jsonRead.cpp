@@ -2,7 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-
+#include <string>
+using namespace std;
 // Define a Trade structure
 struct Trade {
     std::string trade_date;       
