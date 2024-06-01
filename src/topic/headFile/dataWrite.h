@@ -7,7 +7,12 @@
 #include <iostream>
 #include <vector>
 #include <string>
-
+/*
+* Notice if we reopen the parquet file and write it,
+* we will overwrite the initial version.
+* So we need to read the parquet file and append the new data,
+* then write it into new parquet file.
+*/
 struct Trade {
     std::string symbol;
     double bid_size;
