@@ -9,7 +9,7 @@
 int main() {
     auto start = std::chrono::high_resolution_clock::now();
     // parquet file path
-    std::string file_path = "large_test.parquet";
+    std::string file_path = "trades.parquet";
 
     // Create file input stream
     std::shared_ptr<arrow::io::ReadableFile> infile;

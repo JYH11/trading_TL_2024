@@ -5,19 +5,11 @@
 
 using namespace std;
 
-// Function declarations
-string extractField(const string& data, const string& field);
-string getSymbol(const string& data);
-string getTime(const string& data);
-double getBidPrice(const string& data);
-double getBidSize(const string& data);
-double getAskPrice(const string& data);
-double getAskSize(const string& data);
-
 void testExtractField() {
     cout << "Testing extractField..." << endl;
     assert(extractField("", "field") == "");
     assert(extractField("key1=value1,key2=value2", "nonexistent") == "");
+    assert(extractField("field=value1,key2=value2,key3=value3", "field") == "value1");
     assert(extractField("key1=value1,field=value2,key3=value3", "field") == "value2");
     assert(extractField("key1=value1,key2=value2,field=value3", "field") == "value3");
     cout << "All extractField tests passed." << endl;
