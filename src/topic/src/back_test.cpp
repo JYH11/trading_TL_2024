@@ -8,14 +8,16 @@
 #include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
 
+
 using std::string;
+double account = 0;
 
 class SubscriberNode : public rclcpp::Node
 {
 public:
     SubscriberNode(std::string name) : Node(name)
     {
-        RCLCPP_INFO(this->get_logger(), "strategy2 node is running.");
+        RCLCPP_INFO(this->get_logger(), "backtest node is running.");
         // 3. Create a subscriber
         subscription_ = this->create_subscription<interfaces::msg::TemplateInfo>("string_msg", 10,
                                                                           std::bind(&SubscriberNode::sub_callback, this, std::placeholders::_1));
@@ -39,13 +41,23 @@ private:
                     example_bid_price,
                     example_ask_size,
                     example_ask_price);
+
+        double number1 = example_bid_size*example_bid_price;
+        double number2 = example_ask_size*example_ask_price;
+        double number3 = number2 - number1;
+
+        if(number3 > 0){
+            account -= number2;
+        }else{
+            account += number1;
+        }
     }
     
 };
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<SubscriberNode>("strategy2");
+    auto node = std::make_shared<SubscriberNode>("back_test");
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;

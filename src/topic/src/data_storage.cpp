@@ -1,47 +1,71 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include <arrow/array.h>
-#include <arrow/builder.h>
-#include <arrow/type.h>
 #include <memory>
-#include <arrow/api.h>
-#include <parquet/arrow/writer.h>
 #include "interfaces/msg/template_info.hpp"
+#include "../headFile/dataWrite.h"
+#include <queue>
+#include <mutex>
+#include <vector>
 
-// TODO: This is a subscriber node responsible for transmitting to the local database
-// The obtained data needs to be selectively stored as parquet files.
+using namespace std;
+using namespace chrono_literals;
 
 class SubscriberNode : public rclcpp::Node
 {
 public:
-    SubscriberNode(std::string name) : Node(name)
+    SubscriberNode(string name) : Node(name), data_writer_("trades.parquet")
     {
-        RCLCPP_INFO(this->get_logger(), "node is running.");
-        // 3. Create a subscriber
+        RCLCPP_INFO(this->get_logger(), "data_storage node is running.");
+        // Create a subscriber
         subscription_ = this->create_subscription<interfaces::msg::TemplateInfo>("string_msg", 10,
-                                                                          std::bind(&SubscriberNode::sub_callback, this, std::placeholders::_1));
+            bind(&SubscriberNode::sub_callback, this, placeholders::_1));
+
+        // Create a timer to periodically write data
+        timer_ = this->create_wall_timer(1s, bind(&SubscriberNode::write_data, this));
     }
 
 private:
-    // 1.Declare subscribers
     rclcpp::Subscription<interfaces::msg::TemplateInfo>::SharedPtr subscription_;
-    // 2.Subscriber callback function
+    rclcpp::TimerBase::SharedPtr timer_;
+    DataWriter data_writer_;
+    queue<Trade> trade_queue_;
+    mutex queue_mutex_;
+
     void sub_callback(const interfaces::msg::TemplateInfo::SharedPtr msgs)
     {
-        RCLCPP_INFO(this->get_logger(), "Receiving name: %s, id: %ld, side: %s \n                                     timestamp: %s, size: %ld, price: %ld",
+        lock_guard<mutex> lock(queue_mutex_);
+        trade_queue_.emplace(msgs->symbol, msgs->bidsize, msgs->bidprice, msgs->asksize, msgs->askprice);
+        RCLCPP_INFO(this->get_logger(), "Receiving name: %s, bidsize: %f, bidprice: %f, ask_size: %f, ask_price: %f",
                     msgs->symbol.c_str(),
-                    msgs->id,
-                    msgs->side.c_str(),
-                    msgs->timestamp.c_str(),
-                    msgs->size,
-                    msgs->price);
+                    msgs->bidsize,
+                    msgs->bidprice,
+                    msgs->asksize,
+                    msgs->askprice);
     }
-    
+
+    void write_data()
+    {
+        vector<Trade> trades;
+        {
+            lock_guard<mutex> lock(queue_mutex_);
+            while (!trade_queue_.empty())
+            {
+                trades.push_back(trade_queue_.front());
+                trade_queue_.pop();
+            }
+        }
+        if (!trades.empty())
+        {
+            data_writer_.writeData(trades);
+            RCLCPP_INFO(this->get_logger(), "Wrote %zu trades to Parquet file.", trades.size());
+        }
+    }
 };
+
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    auto node = std::make_shared<SubscriberNode>("data_storage");
+    auto node = make_shared<SubscriberNode>("data_storage");
     rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;

@@ -1,6 +1,5 @@
 string symbol
-int64 id
-string side
-string timestamp
-int64 size
-int64 price
+float64 bidsize
+float64 bidprice
+float64 asksize
+float64 askprice

@@ -1,37 +1,29 @@
 #include <cstdlib>
 #include <iostream>
-#include <string>
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "ccapi_cpp/ccapi_session.h"
 #include "interfaces/msg/template_info.hpp"
+#include "../headFile/extractData.h"
 
 using namespace std::chrono_literals;
 
-namespace ccapi {
-Logger* Logger::logger = nullptr;  // This line is needed.
-class MyEventHandler : public EventHandler {
- public:
-  bool processEvent(const Event& event, Session* session) override {
-    std::cout << toString(event) + "\n" << std::endl;
-    return true;
-  }
-};
-} /* namespace ccapi */
+using std::vector; 
+using std::stod;
 
 using ::ccapi::Event;
 using ::ccapi::EventDispatcher;
-using ::ccapi::MyEventHandler;
 using ::ccapi::Session;
 using ::ccapi::SessionConfigs;
 using ::ccapi::SessionOptions;
 using ::ccapi::Subscription;
 using ::ccapi::toString;
 
+
 class PublisherNode : public rclcpp::Node
 {
 public:
-    PublisherNode(std::string name, std::string mode) : Node(name), mode_(mode)
+    PublisherNode(string name) : Node(name)
     {
         RCLCPP_INFO(this->get_logger(), "node is running.");
         // 2.Create publisher
@@ -47,66 +39,43 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     // 1. Claim publisher
     rclcpp::Publisher<interfaces::msg::TemplateInfo>::SharedPtr publisher_;
-
-    // clarify the mode
-    std::string mode_;
     
    void send_msg()
-    {
-        interfaces::msg::TemplateInfo info;
+    {   
         // Create message
-        interfaces::msg::TemplateInfo info2;
-
-        /*
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", info.symbol.c_str());
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", info2.symbol.c_str());
-        */
-
-    if (mode_ == "dispatch_events_to_multiple_threads") {
-        SessionOptions sessionOptions;
-        SessionConfigs sessionConfigs;
-        MyEventHandler eventHandler;
-        EventDispatcher eventDispatcher(2);
-        Session session(sessionOptions, sessionConfigs, &eventHandler, &eventDispatcher);
-        // Subscription to Binance
-        Subscription binanceSubscription("binance", "BTCUSDT", "MARKET_DEPTH");
-        session.subscribe(binanceSubscription);
-        // Subscription to BitMEX
-        Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
-        session.subscribe(bitmexSubscription);
-        
-        // make an announcement
-        publisher_->publish(info);
-        publisher_->publish(info2);
-
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-        session.stop();
-        eventDispatcher.stop();
-    } else if (mode_ == "handle_events_in_batching_mode") {
+        interfaces::msg::TemplateInfo info;
+    
         SessionOptions sessionOptions;
         SessionConfigs sessionConfigs;
         Session session(sessionOptions, sessionConfigs);
         // Subscription to Binance
         Subscription binanceSubscription("binance", "BTCUSDT", "MARKET_DEPTH");
         session.subscribe(binanceSubscription);
-
+        
         // Subscription to BitMEX
-        Subscription bitmexSubscription("bitmex", "XBTUSD", "MARKET_DEPTH");
-        session.subscribe(bitmexSubscription);
+        // Subscription bitmexSubscription("bitmex", "BTCUSD", "MARKET_DEPTH");
+        // session.subscribe(bitmexSubscription);
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
         std::vector<Event> eventList = session.getEventQueue().purge();
 
         for (const auto& event : eventList) {
-            info.symbol = toString(event);
+            string data = toString(event);
+
+            info.symbol = "BTCUSDT";
+            info.bidsize = getBidSize(data);
+            info.bidprice = getBidPrice(data);
+            info.asksize = getAskSize(data);
+            info.askprice = getAskPrice(data);
+
             // make an announcement
-            publisher_->publish(info);
-            publisher_->publish(info2);
-            std::cout << toString(event) + "\n" << std::endl;
+            publisher_->publish(info);               
+            RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", data.c_str());
         }
+        
         session.stop();
-    }
-    std::cout << "Bye" << std::endl;
+    
+        std::cout << "Bye" << std::endl;
     }
 };
 
@@ -114,17 +83,7 @@ int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
 
-    std::vector<std::string> modeList = {
-            "dispatch_events_to_multiple_threads",
-            "handle_events_in_batching_mode",
-    };
-    if (argc != 2 || std::find(modeList.begin(), modeList.end(), argv[1]) == modeList.end()) {
-    std::cerr << "Please provide one command line argument from this list: " + toString(modeList) << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    std::string mode(argv[1]);
-    auto node = std::make_shared<PublisherNode>("data_pull",mode);
+    auto node = std::make_shared<PublisherNode>("data_pull");
 
     rclcpp::spin(node);
     rclcpp::shutdown();

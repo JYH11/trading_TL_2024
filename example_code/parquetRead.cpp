@@ -5,36 +5,39 @@
 #include <iostream>
 #include <memory>
 #include <chrono>
+#include <string>
+using namespace std;
 
 int main() {
-    auto start = std::chrono::high_resolution_clock::now();
+    auto start = chrono::high_resolution_clock::now();
     // parquet file path
-        std::string file_path = "large_test.parquet";
+    string file_path = "trades.parquet";
 
-    // 创建文件输入流
-    std::shared_ptr<arrow::io::ReadableFile> infile;
+    // Create file input stream
+    shared_ptr<arrow::io::ReadableFile> infile;
     PARQUET_ASSIGN_OR_THROW(infile, arrow::io::ReadableFile::Open(file_path, arrow::default_memory_pool()));
 
-    // 创建Parquet文件读取器
-    std::unique_ptr<parquet::arrow::FileReader> reader;
+    // Create a Parquet file reader
+    unique_ptr<parquet::arrow::FileReader> reader;
     parquet::arrow::FileReaderBuilder builder;
     PARQUET_THROW_NOT_OK(builder.Open(infile));
     PARQUET_THROW_NOT_OK(builder.Build(&reader));
 
-    // 使用多线程读取
+    // Read using multiple threads
     reader->set_use_threads(true);
 
-    // 读取整个表
-    std::shared_ptr<arrow::Table> table;
+    // Read the entire table
+    shared_ptr<arrow::Table> table;
     PARQUET_THROW_NOT_OK(reader->ReadTable(&table));
 
-    // 输出表的简单信息，可以扩展为更详细的行列处理
-    std::cout << table->ToString() << std::endl;
+    // Outputs simple information about the table,
+    // which can be expanded to more detailed row and column processing
+    cout << table->ToString() << endl;
 
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = end - start;
-    std::cout << "Parquet read time: " << elapsed.count() << " seconds." << std::endl;
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = end - start;
+    cout << "Parquet read time: " << elapsed.count() << " seconds." << endl;
 
     return 0;
 }

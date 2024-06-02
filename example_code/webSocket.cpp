@@ -6,16 +6,16 @@
 #include <boost/asio/ssl/stream.hpp>
 #include <iostream>
 #include <string>
-
+using namespace std;
 namespace ssl = boost::asio::ssl;             
 using tcp = boost::asio::ip::tcp;               
 namespace websocket = boost::beast::websocket; 
 
 int main() {
     try {
-        std::string host = "www.bitmex.com";
-        std::string port = "443";
-        std::string text = R"({"op": "subscribe", "args": ["instrument:XBTUSD"]})";
+        string host = "www.bitmex.com";
+        string port = "443";
+        string text = R"({"op": "subscribe", "args": ["instrument:XBTUSD"]})";
 
         boost::asio::io_context ioc;
 
@@ -35,35 +35,35 @@ int main() {
             throw boost::system::system_error{ec};
         }
 
-        host += ':' + std::to_string(ep.port());
+        host += ':' + to_string(ep.port());
 
         ws.next_layer().handshake(ssl::stream_base::client);
 
         ws.set_option(websocket::stream_base::decorator(
             [](websocket::request_type& req) {
                 req.set(boost::beast::http::field::user_agent,
-                    std::string(BOOST_BEAST_VERSION_STRING) +
+                    string(BOOST_BEAST_VERSION_STRING) +
                         " websocket-client-coro");
             }));
 
         ws.handshake(host, "/realtime");
 
-        ws.write(boost::asio::buffer(std::string(text)));
+        ws.write(boost::asio::buffer(string(text)));
 
         boost::beast::multi_buffer buffer;
         while (true) { 
             try {
                 ws.read(buffer);
-                std::string message = boost::beast::buffers_to_string(buffer.data());
-                std::cout << "Received: " << message << std::endl;
+                string message = boost::beast::buffers_to_string(buffer.data());
+                cout << "Received: " << message << endl;
                 buffer.consume(buffer.size());
-            } catch (std::exception const& e) {
-                std::cerr << "Read Error: " << e.what() << std::endl;
+            } catch (exception const& e) {
+                cerr << "Read Error: " << e.what() << endl;
                 break; 
             }
         }
-    } catch (std::exception const& e) {
-        std::cerr << "Connection Error: " << e.what() << std::endl;
+    } catch (exception const& e) {
+        cerr << "Connection Error: " << e.what() << endl;
         return EXIT_FAILURE;
     }
 

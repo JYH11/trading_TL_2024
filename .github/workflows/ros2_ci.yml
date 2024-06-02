@@ -1,0 +1,26 @@
+name: ROS2 CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: List directory contents
+      run: ls -la
+
+    - name: Compile test program
+      run: |
+        cd test
+        g++ -o extractData_test extractData_test.cpp
+        ./extractData_test
