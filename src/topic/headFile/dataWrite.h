@@ -28,6 +28,7 @@ struct Trade {
           ask_size(ask_size_), ask_price(ask_price_) {}
 };
 
+
 class DataWriter {
 public:
     DataWriter(const string& file_path) : file_path_(file_path) {}
