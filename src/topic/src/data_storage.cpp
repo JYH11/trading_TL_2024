@@ -42,7 +42,7 @@ private:
                     msgs->asksize,
                     msgs->askprice);
     }
-
+    
     void write_data()
     {
         vector<Trade> trades;
@@ -54,6 +54,8 @@ private:
                 trade_queue_.pop();
             }
         }
+
+
         if (!trades.empty())
         {
             data_writer_.writeData(trades);

@@ -19,7 +19,6 @@ using ::ccapi::SessionOptions;
 using ::ccapi::Subscription;
 using ::ccapi::toString;
 
-
 class PublisherNode : public rclcpp::Node
 {
 public:
@@ -28,10 +27,10 @@ public:
         RCLCPP_INFO(this->get_logger(), "node is running.");
         // 2.Create publisher
         publisher_ = this->create_publisher<interfaces::msg::TemplateInfo>("string_msg", 10);
-
+        
         // Create timer to publish information
         timer_ = this->create_wall_timer(
-        500ms,std::bind(&PublisherNode::send_msg, this));
+        50ms,std::bind(&PublisherNode::send_msg, this));
     }
 
 private:
