@@ -31,7 +31,6 @@ string getTime(const string& data){
     return data.substr(startPos , endPos - startPos);
 }
 
-
 double getBidPrice(const string& data) {
     string price = extractField(data, "BID_PRICE");
     return !price.empty() ? stod(price) : 0.0;
